@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天机器人</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 0;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .shortcut-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shortcut-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .shortcut-btn:active {
+            transform: translateY(0);
+        }
+
+        .shortcut-icon {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .message-options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .message-option {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        }
+
+        .message-option:active {
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .shortcut-btn {
+                top: 15px;
+                right: 15px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 20px;
+            }
+
+            .message-option {
+                padding: 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .shortcut-btn {
+                top: 10px;
+                right: 10px;
+                padding: 8px 16px;
+                font-size: 11px;
+            }
+
+            .message-options {
+                gap: 10px;
+            }
+
+            .message-option {
+                padding: 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <iframe 
+            class="chat-iframe"
+            src="https://ai-agent-1.clink.cn/chat/MwGeZYTaTtCC8IXe">
+        </iframe>
+    </div>
+
+    <!-- 快捷键按钮 -->
+    <button class="shortcut-btn" onclick="openShortcutModal()">
+        <span class="shortcut-icon"></span>
+        快捷键
+    </button>
+
+    <!-- 快捷键模态框 -->
+    <div id="shortcutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">选择你要查询的手册</h2>
+                <button class="close-btn" onclick="closeShortcutModal()">&times;</button>
+            </div>
+            <div class="message-options">
+                <button class="message-option" onclick="sendMessage('TBS1000C')">TBS1000C</button>
+                <button class="message-option" onclick="sendMessage('TBS2000B')">TBS2000B</button>
+                <button class="message-option" onclick="sendMessage('MSO2')">MSO2</button>
+                <button class="message-option" onclick="sendMessage('MDO3')">MDO3</button>
+                <button class="message-option" onclick="sendMessage('MSO456')">MSO456</button>
+                <button class="message-option" onclick="sendMessage('MSO/DPO70000')">MSO/DPO70000</button>
+                <button class="message-option" onclick="sendMessage('MDO3000')">MDO3000</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 打开快捷键模态框
+        function openShortcutModal() {
+            document.getElementById('shortcutModal').style.display = 'block';
+        }
+
+        // 关闭快捷键模态框
+        function closeShortcutModal() {
+            document.getElementById('shortcutModal').style.display = 'none';
+        }
+
+        // 发送消息到iframe
+        function sendMessage(message) {
+            const iframe = document.querySelector('.chat-iframe');
+            if (iframe && iframe.contentWindow) {
+                // 尝试通过postMessage发送消息
+                iframe.contentWindow.postMessage({
+                    type: 'sendMessage',
+                    message: message
+                }, '*');
+                
+                // 或者尝试直接操作iframe内的输入框
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const inputElement = iframeDoc.querySelector('input[type="text"], textarea, [contenteditable="true"]');
+                    if (inputElement) {
+                        inputElement.value = message;
+                        inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+                        
+                        // 尝试触发发送按钮
+                        const sendButton = iframeDoc.querySelector('button[type="submit"], .send-button, [aria-label*="发送"]');
+                        if (sendButton) {
+                            sendButton.click();
+                        }
+                    }
+                } catch (e) {
+                    console.log('无法直接操作iframe内容，请手动复制消息');
+                    // 如果无法直接操作，显示提示
+                    alert(`请手动复制以下消息到聊天框：\n\n${message}`);
+                }
+            }
+            
+            closeShortcutModal();
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('shortcutModal');
+            if (event.target === modal) {
+                closeShortcutModal();
+            }
+        }
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeShortcutModal();
+            }
+        });
+
+        // 监听iframe消息
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'iframeReady') {
+                console.log('iframe已准备就绪');
+            }
+        });
+    </script>
+</body>
+</html>
